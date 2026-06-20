@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { cases, faqs, solutions } from "@/lib/content";
 
 const filters = ["全部", ...Array.from(new Set(cases.map((item) => item.category)))];
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const asset = (path: string) => `${basePath}${path}`;
 
 function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -62,7 +64,7 @@ export function HomeExperience() {
     <main>
       <header className={`header ${menuOpen ? "menu-open" : ""}`}>
         <a className="logo" href="#top" aria-label="米乐高首页">
-          <Image src="/images/millegao-logo-dark.png" alt="米乐高图像科技" width={1530} height={450} priority />
+          <Image src={asset("/images/millegao-logo-dark.png")} alt="米乐高图像科技" width={1530} height={450} priority />
         </a>
         <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen}><i /><i /><span>菜单</span></button>
         <nav>
@@ -76,8 +78,8 @@ export function HomeExperience() {
       </header>
 
       <section className="hero" id="top">
-        <video autoPlay muted loop playsInline poster="/images/case-mountain.jpg">
-          <source src="/video/hero.mp4" type="video/mp4" />
+        <video autoPlay muted loop playsInline poster={asset("/images/case-mountain.jpg")}>
+          <source src={asset("/video/hero.mp4")} type="video/mp4" />
         </video>
         <div className="hero-overlay" />
         <div className="aurora aurora-a" /><div className="aurora aurora-b" />
@@ -119,7 +121,7 @@ export function HomeExperience() {
           {solutions.map((item) => (
             <Reveal className="solution-row glass" key={item.id}>
               <span className="solution-index">{item.index}</span>
-              <div className="solution-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 768px) 90vw, 300px" /></div>
+              <div className="solution-image"><Image src={asset(item.image)} alt={item.title} fill sizes="(max-width: 768px) 90vw, 300px" /></div>
               <div className="solution-content">
                 <small>{item.english}</small><h3>{item.title}</h3><p>{item.summary}</p>
                 <div className="tag-list">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
@@ -142,7 +144,7 @@ export function HomeExperience() {
           {visibleCases.map((item, index) => (
             <Reveal className={`case-tile ${item.featured && index < 6 ? "featured" : ""}`} key={item.id}>
               <button onClick={() => setSelectedCase(item)}>
-                <Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 50vw" />
+                <Image src={asset(item.image)} alt={item.title} fill sizes="(max-width: 700px) 100vw, 50vw" />
                 <span className="case-shade" />
                 <span className="case-meta"><small>{item.category}</small><strong>{item.title}</strong><em>{item.tags.join(" · ")}</em></span>
               </button>
@@ -173,7 +175,7 @@ export function HomeExperience() {
       </section>
 
       <section className="about section" id="about">
-        <Reveal className="about-image"><Image src="/images/company-studio.jpg" alt="米乐高公司环境" fill sizes="(max-width: 800px) 100vw, 55vw" /></Reveal>
+        <Reveal className="about-image"><Image src={asset("/images/company-studio.jpg")} alt="米乐高公司环境" fill sizes="(max-width: 800px) 100vw, 55vw" /></Reveal>
         <Reveal className="about-copy"><p className="kicker">ABOUT MILLEGAO</p><h2>懂内容，<br />也懂现场。</h2><p>米乐高专注数字视觉与沉浸式体验，通过创意策划、数字内容、互动技术和工程实施，为不同空间建立具有传播力与参与感的体验。</p><a href="#contact">与项目顾问沟通 ↗</a></Reveal>
       </section>
 
@@ -196,9 +198,9 @@ export function HomeExperience() {
         </Reveal>
       </section>
 
-      <footer><Image src="/images/millegao-logo-dark.png" alt="米乐高图像科技" width={1530} height={450} /><p>数字光影与沉浸式空间综合解决方案</p><nav><a href="#solutions">解决方案</a><a href="#cases">案例墙</a><a href="#capability">核心能力</a><a href="#contact">联系</a></nav><small>© 2026 成都米乐高图像科技有限公司</small></footer>
+      <footer><Image src={asset("/images/millegao-logo-dark.png")} alt="米乐高图像科技" width={1530} height={450} /><p>数字光影与沉浸式空间综合解决方案</p><nav><a href="#solutions">解决方案</a><a href="#cases">案例墙</a><a href="#capability">核心能力</a><a href="#contact">联系</a></nav><small>© 2026 成都米乐高图像科技有限公司</small></footer>
 
-      {selectedCase && <div className="modal-backdrop" onClick={() => setSelectedCase(null)}><article className="case-modal glass" onClick={(event) => event.stopPropagation()}><button onClick={() => setSelectedCase(null)}>×</button><div className="modal-image"><Image src={selectedCase.image} alt={selectedCase.title} fill /></div><div className="modal-copy"><small>{selectedCase.category}</small><h2>{selectedCase.title}</h2><p>{selectedCase.summary}</p><div className="tag-list">{selectedCase.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><a className="primary-button" href="#contact" onClick={() => setSelectedCase(null)}>咨询类似项目 ↗</a></div></article></div>}
+      {selectedCase && <div className="modal-backdrop" onClick={() => setSelectedCase(null)}><article className="case-modal glass" onClick={(event) => event.stopPropagation()}><button onClick={() => setSelectedCase(null)}>×</button><div className="modal-image"><Image src={asset(selectedCase.image)} alt={selectedCase.title} fill /></div><div className="modal-copy"><small>{selectedCase.category}</small><h2>{selectedCase.title}</h2><p>{selectedCase.summary}</p><div className="tag-list">{selectedCase.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><a className="primary-button" href="#contact" onClick={() => setSelectedCase(null)}>咨询类似项目 ↗</a></div></article></div>}
 
       <button className="ai-fab glass" onClick={() => setAiOpen(true)}><i /> AI 智能咨询</button>
       <aside className={`ai-panel glass ${aiOpen ? "open" : ""}`} aria-hidden={!aiOpen}>
