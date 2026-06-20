@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 正式域名确定后，在此添加绝对地址：
+# Sitemap: https://www.your-domain.com/sitemap.xml
