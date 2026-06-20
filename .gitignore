@@ -6,3 +6,5 @@ node_modules
 npm-debug.log*
 gh-auth-*.txt
 next-preview.log
+local-preview.log
+out
