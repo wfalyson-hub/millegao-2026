@@ -29,8 +29,7 @@ jobs:
         run: npm ci
       - name: Build static website
         env:
-          NEXT_PUBLIC_BASE_PATH: /millegao-2026
-          NEXT_PUBLIC_SITE_URL: https://wfalyson-hub.github.io/millegao-2026
+          NEXT_PUBLIC_SITE_URL: https://www.cdmiracle.com
         run: npm run build
       - name: Configure Pages
         uses: actions/configure-pages@v5

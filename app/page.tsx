@@ -6,11 +6,11 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://www.millegao.com/#organization",
+      "@id": "https://www.cdmiracle.com/#organization",
       name: "成都米乐高图像科技有限公司",
       alternateName: "米乐高图像科技",
       description: "数字光影与沉浸式空间综合解决方案服务商。",
-      logo: "https://www.millegao.com/images/millegao-logo-dark.png",
+      logo: "https://www.cdmiracle.com/images/millegao-logo-dark.png",
       telephone: ["028-88592078", "18780285932"],
       address: { "@type": "PostalAddress", addressLocality: "成都", addressRegion: "四川", addressCountry: "CN" },
       areaServed: "中国"
@@ -22,7 +22,7 @@ const jsonLd = {
         "@type": "Service",
         position: index + 1,
         name: item.title,
-        provider: { "@id": "https://www.millegao.com/#organization" }
+        provider: { "@id": "https://www.cdmiracle.com/#organization" }
       }))
     },
     {
