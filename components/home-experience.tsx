@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cases, faqs, solutions } from "@/lib/content";
 
 const filters = ["全部", ...Array.from(new Set(cases.map((item) => item.category)))];
@@ -9,23 +11,11 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const asset = (path: string) => `${basePath}${path}`;
 
 function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        node.classList.add("is-visible");
-        observer.disconnect();
-      }
-    }, { threshold: 0.12 });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-  return <div ref={ref} className={`reveal ${className}`}>{children}</div>;
+  return <div className={`reveal ${className}`}>{children}</div>;
 }
 
 export function HomeExperience() {
+  const rootRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("全部");
   const [selectedCase, setSelectedCase] = useState<(typeof cases)[number] | null>(null);
@@ -37,6 +27,191 @@ export function HomeExperience() {
     () => activeFilter === "全部" ? cases : cases.filter((item) => item.category === activeFilter),
     [activeFilter]
   );
+
+  useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const root = rootRef.current;
+    if (!root) return;
+
+    const media = gsap.matchMedia();
+    const context = gsap.context(() => {
+      media.add(
+        {
+          desktop: "(min-width: 901px) and (pointer: fine)",
+          compact: "(max-width: 900px)",
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+        },
+        ({ conditions }) => {
+          const { desktop, reduceMotion } = conditions as {
+            desktop: boolean;
+            compact: boolean;
+            reduceMotion: boolean;
+          };
+
+          if (reduceMotion) {
+            gsap.set(".reveal", { clearProps: "all" });
+            return;
+          }
+
+          const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+          intro
+            .from(".header", { y: -24, autoAlpha: 0, duration: 0.7, clearProps: "transform,opacity,visibility" })
+            .from(".hero .kicker", { x: -24, autoAlpha: 0, duration: 0.6 }, 0.15)
+            .from(".hero-line", { yPercent: 105, autoAlpha: 0, rotateX: -10, duration: 1, stagger: 0.12 }, 0.2)
+            .from(".hero .lead", { y: 22, autoAlpha: 0, duration: 0.7 }, 0.55)
+            .from(".hero-actions > *", { y: 16, autoAlpha: 0, duration: 0.55, stagger: 0.1 }, 0.68)
+            .from(".hero-metrics", { x: 35, autoAlpha: 0, duration: 0.75 }, 0.72)
+            .from(".scroll-cue", { autoAlpha: 0, duration: 0.55 }, 0.9);
+
+          gsap.to(".scroll-progress", {
+            scaleX: 1,
+            ease: "none",
+            scrollTrigger: { start: 0, end: "max", scrub: 0.25 },
+          });
+
+          gsap.utils.toArray<HTMLElement>(".section-head, .narrative-title").forEach((heading) => {
+            gsap.from(heading, {
+              y: 34,
+              autoAlpha: 0,
+              clipPath: "inset(0 0 24% 0)",
+              duration: 0.9,
+              ease: "power3.out",
+              scrollTrigger: { trigger: heading, start: "top 84%", once: true },
+            });
+          });
+
+          gsap.utils.toArray<HTMLElement>(".narrative-copy, .about-copy, .contact-copy, .contact-form").forEach((block, index) => {
+            gsap.from(block, {
+              x: index % 2 === 0 ? 34 : -34,
+              autoAlpha: 0,
+              duration: 0.85,
+              ease: "power2.out",
+              scrollTrigger: { trigger: block, start: "top 86%", once: true },
+            });
+          });
+
+          ScrollTrigger.batch(".solution-row", {
+            start: "top 88%",
+            once: true,
+            onEnter: (items) => gsap.from(items, {
+              x: desktop ? -42 : 0,
+              y: desktop ? 0 : 24,
+              rotateY: desktop ? -3 : 0,
+              autoAlpha: 0,
+              duration: 0.78,
+              stagger: 0.1,
+              ease: "power3.out",
+              clearProps: "transform",
+            }),
+          });
+
+          ScrollTrigger.batch(".case-tile", {
+            start: "top 90%",
+            once: true,
+            onEnter: (items) => gsap.from(items, {
+              y: 42,
+              autoAlpha: 0,
+              clipPath: "inset(8% 0 8% 0 round 18px)",
+              duration: 0.82,
+              stagger: 0.08,
+              ease: "power3.out",
+              clearProps: "clipPath",
+            }),
+          });
+
+          ScrollTrigger.batch(".capability-card", {
+            start: "top 88%",
+            once: true,
+            onEnter: (items) => gsap.from(items, {
+              y: 30,
+              autoAlpha: 0,
+              duration: 0.68,
+              stagger: 0.08,
+              ease: "back.out(1.25)",
+            }),
+          });
+
+          gsap.from(".ai-demo", {
+            x: 45,
+            autoAlpha: 0,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: { trigger: ".ai-stage", start: "top 72%", once: true },
+          });
+
+          gsap.from(".about-image", {
+            scale: 0.96,
+            autoAlpha: 0,
+            clipPath: "inset(9% 6% 9% 6% round 24px)",
+            duration: 1.1,
+            ease: "power3.out",
+            scrollTrigger: { trigger: ".about", start: "top 76%", once: true },
+          });
+
+          if (desktop) {
+            gsap.to(".hero video", {
+              yPercent: 9,
+              scale: 1.045,
+              ease: "none",
+              scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.8 },
+            });
+            gsap.to(".hero-grid", {
+              yPercent: 14,
+              opacity: 0.05,
+              ease: "none",
+              scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 },
+            });
+            gsap.to(".ai-light", {
+              xPercent: 65,
+              yPercent: -15,
+              ease: "none",
+              scrollTrigger: { trigger: ".ai-stage", start: "top bottom", end: "bottom top", scrub: 1.2 },
+            });
+          }
+        }
+      );
+
+      const glassCards = root.querySelectorAll<HTMLElement>(".glass");
+      const finePointer = window.matchMedia("(pointer: fine)").matches;
+      if (finePointer) {
+        glassCards.forEach((card) => {
+          const move = (event: PointerEvent) => {
+            const bounds = card.getBoundingClientRect();
+            card.style.setProperty("--mx", `${event.clientX - bounds.left}px`);
+            card.style.setProperty("--my", `${event.clientY - bounds.top}px`);
+          };
+          card.addEventListener("pointermove", move);
+          card.dataset.pointerListener = "true";
+          (card as HTMLElement & { _move?: (event: PointerEvent) => void })._move = move;
+        });
+      }
+    }, root);
+
+    return () => {
+      root.querySelectorAll<HTMLElement>("[data-pointer-listener]").forEach((card) => {
+        const move = (card as HTMLElement & { _move?: (event: PointerEvent) => void })._move;
+        if (move) card.removeEventListener("pointermove", move);
+      });
+      media.revert();
+      context.revert();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCase) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const timeline = gsap.timeline();
+    timeline
+      .fromTo(".modal-backdrop", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.24, ease: "power2.out" })
+      .from(".case-modal", { scale: 0.965, y: 20, clipPath: "inset(9% 12% round 28px)", duration: 0.55, ease: "power3.out" }, 0.04)
+      .from(".modal-image img", { scale: 1.08, duration: 0.75, ease: "power2.out" }, 0.08)
+      .from(".modal-copy > *", { y: 16, autoAlpha: 0, duration: 0.42, stagger: 0.055, ease: "power2.out" }, 0.18);
+    return () => {
+      timeline.kill();
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [selectedCase]);
 
   function askAI(text: string) {
     const query = text.trim();
@@ -61,7 +236,8 @@ export function HomeExperience() {
   }
 
   return (
-    <main>
+    <main ref={rootRef}>
+      <div className="scroll-progress" aria-hidden="true" />
       <header className={`header ${menuOpen ? "menu-open" : ""}`}>
         <a className="logo" href="#top" aria-label="米乐高首页">
           <Image src={asset("/images/millegao-logo-dark.png")} alt="米乐高图像科技" width={1530} height={450} priority />
@@ -86,7 +262,7 @@ export function HomeExperience() {
         <div className="hero-grid" />
         <div className="hero-copy">
           <p className="kicker"><span /> DIGITAL LIGHT · IMMERSIVE SPACE</p>
-          <h1>让空间被看见<br /><em>让体验真正发生</em></h1>
+          <h1><span className="hero-line">让空间被看见</span><span className="hero-line"><em>让体验真正发生</em></span></h1>
           <p className="lead">融合文化内容、数字视觉与互动科技，为文旅、商业、展馆、餐饮和活动空间创造值得到场的体验。</p>
           <div className="hero-actions">
             <a className="primary-button" href="#solutions">探索解决方案 <b>↗</b></a>
